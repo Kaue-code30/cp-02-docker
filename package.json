@@ -1,0 +1,16 @@
+{
+  "name": "cp2-cloud-stack",
+  "version": "1.0.0",
+  "description": "Checkpoint 2 - Computacao em Nuvem",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "express": "4.19.2",
+    "pg": "8.12.0",
+    "redis": "4.7.0"
+  }
+}

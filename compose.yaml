@@ -1,0 +1,72 @@
+name: cp2-stack
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: cp2-cloud-stack:1.0.0
+    container_name: cp2-app
+    depends_on:
+      - db
+      - redis
+    environment:
+      APP_PORT: 3000
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: cp2
+      POSTGRES_PASSWORD: cp2pass
+      POSTGRES_DB: cp2db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    stop_grace_period: 20s
+    cpus: "0.50"
+    mem_limit: 512m
+    networks:
+      - cp2-network
+
+  db:
+    image: postgres:16.4-alpine
+    container_name: cp2-postgres
+    environment:
+      POSTGRES_USER: cp2
+      POSTGRES_PASSWORD: cp2pass
+      POSTGRES_DB: cp2db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+    stop_grace_period: 30s
+    cpus: "1.00"
+    mem_limit: 768m
+    networks:
+      - cp2-network
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: cp2-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    stop_grace_period: 15s
+    cpus: "0.50"
+    mem_limit: 256m
+    networks:
+      - cp2-network
+
+networks:
+  cp2-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
